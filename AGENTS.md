@@ -19,7 +19,7 @@
 ## Обработка исключений
 
 **`IPmcp.App.Exceptions.DatabaseException`** — бизнес-исключение при сбое соединения с БД.
-- Создаётся в сервисах при перехвате `LinqToDB.LinqToDBException`.
+- Создаётся в сервисах при перехвате `LinqToDB.LinqToDBException` и `System.Data.Common.DbException` (включает `NpgsqlException`).
 - В инструментах перехватывается и оборачивается в `McpException`.
 
 ## Зависимости
