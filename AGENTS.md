@@ -57,7 +57,7 @@
 - Сервисы используют C# 12 primary constructors: `public class EntityService(AppDataConnection db)`
 - Регистрация в DI — `AddScoped`
 
-**Языковые возможности:** C# 12 primary constructors, expression-bodied members, implicit usings, nullable reference types, top-level statements.
+**Возможности языка C#:** primary constructors (C# 12), expression-bodied members, implicit usings, nullable reference types, top-level statements.
 
 **Язык сообщений:** все информационные и системные сообщения (тексты исключений, логи, сообщения об ошибках) пишутся на **английском языке**.
 
