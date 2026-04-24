@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Field;
 
 [McpServerToolType]
-public static class UpdateField
+public class UpdateField(IFieldService service)
 {
     [McpServerTool(Name = "update_field"), Description("Update an existing IP entity field.")]
-    public static string Execute(IFieldService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

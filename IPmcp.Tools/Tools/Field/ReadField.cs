@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Field;
 
 [McpServerToolType]
-public static class ReadField
+public class ReadField(IFieldService service)
 {
     [McpServerTool(Name = "read_field"), Description("Read a single IP entity field by identifier.")]
-    public static string Execute(IFieldService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

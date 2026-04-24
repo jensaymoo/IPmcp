@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Entity;
 
 [McpServerToolType]
-public static class ReadEntity
+public class ReadEntity(IEntityService service)
 {
     [McpServerTool(Name = "read_entity"), Description("Read a single IP entity type by identifier.")]
-    public static string Execute(IEntityService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

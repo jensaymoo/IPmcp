@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Field;
 
 [McpServerToolType]
-public static class ListField
+public class ListField(IFieldService service)
 {
     [McpServerTool(Name = "list_field"), Description("List all IP entity fields.")]
-    public static string Execute(IFieldService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

@@ -6,9 +6,9 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Entity;
 
 [McpServerToolType]
-public static class ListEntity
+public class ListEntity(IEntityService service)
 {
     [McpServerTool(Name = "list_entity", ReadOnly = true, Idempotent = true), Description("List all IP entity types.")]
-    public static IEnumerable<EntityModel> Execute(IEntityService service, ListEntityFilter filter)
+    public IEnumerable<EntityModel> Execute(ListEntityFilter filter)
         => service.ListEntities(filter);
 }

@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Field;
 
 [McpServerToolType]
-public static class CreateField
+public class CreateField(IFieldService service)
 {
     [McpServerTool(Name = "create_field"), Description("Create a new IP entity field.")]
-    public static string Execute(IFieldService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

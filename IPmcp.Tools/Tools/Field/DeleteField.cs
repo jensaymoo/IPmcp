@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Field;
 
 [McpServerToolType]
-public static class DeleteField
+public class DeleteField(IFieldService service)
 {
     [McpServerTool(Name = "delete_field"), Description("Delete an IP entity field by identifier.")]
-    public static string Execute(IFieldService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

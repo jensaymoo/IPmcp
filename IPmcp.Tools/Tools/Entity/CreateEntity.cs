@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Entity;
 
 [McpServerToolType]
-public static class CreateEntity
+public class CreateEntity(IEntityService service)
 {
     [McpServerTool(Name = "create_entity"), Description("Create a new IP entity type.")]
-    public static string Execute(IEntityService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }

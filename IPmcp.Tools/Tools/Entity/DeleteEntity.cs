@@ -5,8 +5,8 @@ using ModelContextProtocol.Server;
 namespace IPmcp.Tools.Tools.Entity;
 
 [McpServerToolType]
-public static class DeleteEntity
+public class DeleteEntity(IEntityService service)
 {
     [McpServerTool(Name = "delete_entity"), Description("Delete an IP entity type by identifier.")]
-    public static string Execute(IEntityService service) => throw new NotImplementedException();
+    public string Execute() => throw new NotImplementedException();
 }
