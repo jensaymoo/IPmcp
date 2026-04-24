@@ -12,10 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ModelContextProtocol.Protocol;
 
-var database = ParseArg(args, "-database")
-    ?? throw new InvalidOperationException("Required argument -database is missing. Usage: IPmcp.Tools -database <connection_string>");
-
 var builder = Host.CreateApplicationBuilder(args);
+
+var database = builder.Configuration["database"]
+    ?? throw new InvalidOperationException(
+        "Required configuration missing. Pass --database <connection_string> or set the DATABASE environment variable.");
 
 builder.Services.AddLinqToDBContext<AppDataConnection>((provider, options) =>
     options.UseConnectionString(ProviderName.PostgreSQL, database)
@@ -49,9 +50,3 @@ builder.Services
 
 await builder.Build()
     .RunAsync();
-
-static string? ParseArg(string[] args, string key)
-{
-    var index = Array.IndexOf(args, key);
-    return index >= 0 && index + 1 < args.Length ? args[index + 1] : null;
-}
