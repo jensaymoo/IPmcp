@@ -1,108 +1,154 @@
 # AGENTS.md
 
-Инструкции для AI-агентов при работе с этим репозиторием.
+Instructions for AI agents working with this repository.
 
-Тестовые проекты и линтеры не настроены.
+> **Note:** Test projects and linters are not configured.
 
-## Архитектура
+## Table of Contents
 
-**MCP-сервер (Model Context Protocol)** для управления сущностями и полями IdeaPlatform. Данные хранятся в PostgreSQL.
+1. [Overview](#overview)
+2. [Architecture](#architecture)
+3. [Dependencies](#dependencies)
+4. [Code Style](#code-style)
+5. [Key Design Principles](#key-design-principles)
+6. [Exception Handling](#exception-handling)
+7. [Tools](#tools)
+8. [Build and Run](#build-and-run)
 
-**Решение (IPmcp.sln) — три проекта:**
+## Overview
 
-- **IPmcp.Tools** — точка входа. Запускает MCP-сервер через stdio. Содержит 10 классов инструментов (CRUD для сущностей и полей), регистрируемых через `WithToolsFromAssembly()`. Каждый инструмент — статический класс с атрибутом `[McpServerToolType]` и единственным методом `Execute`, помеченным `[McpServerTool]`.
-- **IPmcp.App** — слой сервисов. Содержит `IEntityService`/`EntityService` и `IFieldService`/`FieldService`. Сервисы и фильтры внедряются в инструменты через параметры метода `Execute`.
-- **IPmcp.Database** — слой доступа к данным. `AppDataConnection` (наследник `DataConnection` из linq2db) предоставляет `ITable<Entity>` и `ITable<Field>`, сопоставленные с таблицами `system.ipentitytype` и `system.ipentityfield`.
+**IPmcp** is an MCP server (Model Context Protocol) for managing IdeaPlatform entities and fields. Data is stored in PostgreSQL.
 
-**Стек:** .NET 10.0, ModelContextProtocol 1.2.0, linq2db 5.4.1.9, PostgreSQL, Microsoft.Extensions.Hosting.
+**Stack:** .NET 10.0, ModelContextProtocol 1.2.0, linq2db 5.4.1.9, PostgreSQL, Microsoft.Extensions.Hosting.
 
-## Обработка исключений
+## Architecture
 
-**`IPmcp.App.Exceptions.DatabaseException`** — бизнес-исключение при сбое соединения с БД.
-- Создаётся в сервисах при перехвате `LinqToDB.LinqToDBException` и `System.Data.Common.DbException`.
-- В инструментах перехватывается и оборачивается в `McpException`.
+The solution (`IPmcp.sln`) contains three projects organized in a layered architecture:
 
-## Зависимости
+| Project | Role | Description |
+|---------|------|-------------|
+| **IPmcp.Tools** | Presentation | Entry point. Runs the MCP server over stdio and hosts 10 tool classes (CRUD for entities and fields), registered via `WithToolsFromAssembly()`. |
+| **IPmcp.App** | Service | Business logic. Contains `IEntityService`/`EntityService` and `IFieldService`/`FieldService`, plus domain models and filters. |
+| **IPmcp.Database** | Data access | `AppDataConnection` (derived from linq2db's `DataConnection`) exposes `ITable<Entity>` and `ITable<Field>`, mapped to `system.ipentitytype` and `system.ipentityfield`. |
 
-| Пакет | Версия | Проект |
-|-------|--------|--------|
+### Tool Contract
+
+Each tool is a static class that follows a uniform contract:
+
+- Decorated with `[McpServerToolType]`.
+- Exposes a single `Execute` method decorated with `[McpServerTool]`.
+- Receives its service and filter through `Execute` parameters — the MCP framework resolves them from DI automatically.
+
+## Dependencies
+
+### Packages
+
+| Package | Version | Project |
+|---------|---------|---------|
 | `ModelContextProtocol` | 1.2.0 | IPmcp.Tools |
 | `Microsoft.Extensions.Hosting` | 10.0.7 | IPmcp.Tools |
 | `linq2db.AspNet` | 5.4.1.9 | IPmcp.Tools |
 | `linq2db` | 5.4.1.9 | IPmcp.Database |
 
-Все проекты: `net10.0`, `ImplicitUsings: enable`, `Nullable: enable`.
+### Common Project Settings
+
+All projects target `net10.0` with `ImplicitUsings: enable` and `Nullable: enable`.
 
 ## Code Style
 
-**Именование:**
-- Классы / интерфейсы — `PascalCase`, интерфейсы с префиксом `I`
-- Методы / параметры / локальные переменные — `camelCase`
-- Названия инструментов MCP — `snake_case` (`create_entity`, `read_field`)
-- Пространства имён — `IPmcp.{Project}.{Layer}.{Category}`
+### Naming
 
-**Организация файлов:**
-- Один тип на файл
-- Интерфейс и реализация в отдельных файлах
-- Инструменты: `Tools/Entity/` и `Tools/Field/`
-- Сервисы: `Services/Entities/` и `Services/Fields/`
-- Модели и фильтры каждой группы: `Services/{Group}/Models/`
+- Classes, interfaces, and methods — `PascalCase`; interfaces are prefixed with `I`.
+- Parameters and local variables — `camelCase`.
+- MCP tool names — `snake_case` (e.g., `create_entity`, `read_field`).
+- Namespaces — `IPmcp.{Project}.{Layer}.{Category}`.
 
-**Типы моделей:**
-- DTO-модели (например, `EntityModel`) — `class` с `required` свойствами и `init`-сеттерами
-- Фильтры (например, `ListEntityFilter`) — `record` тип с инициализацией параметров в аргументах конструктора
+### File Organization
 
-**Внедрение зависимостей:**
-- Инструменты получают сервис и фильтр как параметры метода `Execute` — MCP-фреймворк разрешает их автоматически
-- Сервисы используют C# 12 primary constructors: `public class EntityService(AppDataConnection db)`
-- Регистрация в DI — `AddScoped`
+- One type per file.
+- Interface and implementation live in separate files.
+- Tools: `Tools/Entity/` and `Tools/Field/`.
+- Services: `Services/Entities/` and `Services/Fields/`.
+- Models and filters for each group: `Services/{Group}/Models/`.
 
-**Особенности C#:** primary constructors (C# 12), expression-bodied members, implicit usings, nullable reference types, top-level statements.
+### Model Types
 
-**Язык сообщений:** все информационные и системные сообщения (тексты исключений, логи, сообщения об ошибках) пишутся на **английском языке**.
+- **DTO models** (e.g., `EntityModel`) — `class` with `required` properties and `init` setters.
+- **Filters** (e.g., `ListEntityFilter`) — `record` type with parameters initialized via constructor arguments.
 
-## Инструменты
+### Dependency Injection
 
-Инструменты разделены на две группы: **Entity** (сущности/таблицы) и **Field** (поля/столбцы).
+- Tools receive the service and filter as parameters of the `Execute` method — the MCP framework resolves them automatically.
+- Services use C# 12 primary constructors: `public class EntityService(AppDataConnection db)`.
+- DI registration uses `AddScoped`.
 
-> **Статус реализации:** реализован только `list_entity`. Остальные 9 инструментов являются заглушками и бросают `NotImplementedException`.
+### C# Language Features
 
-### Entity — управление сущностями
+Primary constructors (C# 12), expression-bodied members, implicit usings, nullable reference types, top-level statements.
 
-Таблица БД: `system.ipentitytype`. Сервис: `IEntityService`.
+### Message Language
 
-| Инструмент | Описание | Статус |
-|-----------|----------|--------|
-| `list_entity` | Список всех сущностей | Реализован |
-| `read_entity` | Прочитать сущность по ID | Заглушка |
-| `create_entity` | Создать новую сущность | Заглушка |
-| `update_entity` | Обновить существующую сущность | Заглушка |
-| `delete_entity` | Удалить сущность по ID | Заглушка |
+All informational and system messages (exception texts, logs, error messages) are written in **English**.
 
-`IEntityService` содержит: `ListEntities(ListEntityFilter filter)`.
+## Key Design Principles
 
-`EntityModel` содержит поля: `EntityTypeId`, `ShortName`, `TableName`, `DisplayName`, `IsActive`, `IsAbstract`, `BaseEntityTypeId`, `WorkspaceId`.
+When developing or reviewing code, verify adherence to these key design principles:
 
-### Field — управление полями
+- **DRY** — Avoid code duplication by moving common logic into helper methods or helper classes.
+- **Single Responsibility** — Each class should have one clear responsibility.
+- **Encapsulation** — Keep implementation details private and expose only necessary public APIs.
+- **Strong Typing** — Use strong typing to ensure that code is self-documenting and to catch errors at compile time.
 
-Таблица БД: `system.ipentityfield`. Сервис: `IFieldService`.
+## Exception Handling
 
-| Инструмент | Описание | Статус |
-|-----------|----------|--------|
-| `list_field` | Список всех полей | Заглушка |
-| `read_field` | Прочитать поле по ID | Заглушка |
-| `create_field` | Создать новое поле | Заглушка |
-| `update_field` | Обновить существующее поле | Заглушка |
-| `delete_field` | Удалить поле по ID | Заглушка |
+`IPmcp.App.Exceptions.DatabaseException` is a business exception raised on a database connection failure.
 
-`IFieldService` пока не содержит методов — интерфейс нужно расширять по мере реализации.
+- **Thrown in services** when `LinqToDB.LinqToDBException` or `System.Data.Common.DbException` is caught.
+- **Caught in tools** and wrapped in `McpException` before being surfaced to the MCP client.
 
-## Сборка и запуск
+## Tools
+
+Tools are split into two groups: **Entity** (entities/tables) and **Field** (fields/columns).
+
+> **Implementation status:** only `list_entity` is implemented. The remaining 9 tools are stubs and throw `NotImplementedException`.
+
+### Entity — Entity Management
+
+- **Database table:** `system.ipentitytype`
+- **Service:** `IEntityService`
+- **Implemented methods:** `ListEntities(ListEntityFilter filter)`
+- **`EntityModel` fields:** `EntityTypeId`, `ShortName`, `TableName`, `DisplayName`, `IsActive`, `IsAbstract`, `BaseEntityTypeId`, `WorkspaceId`.
+
+| Tool | Description | Status |
+|------|-------------|--------|
+| `list_entity` | List all entities | Implemented |
+| `read_entity` | Read an entity by ID | Stub |
+| `create_entity` | Create a new entity | Stub |
+| `update_entity` | Update an existing entity | Stub |
+| `delete_entity` | Delete an entity by ID | Stub |
+
+### Field — Field Management
+
+- **Database table:** `system.ipentityfield`
+- **Service:** `IFieldService`
+- **Implemented methods:** none — the interface should be extended as implementation progresses.
+
+| Tool | Description | Status |
+|------|-------------|--------|
+| `list_field` | List all fields | Stub |
+| `read_field` | Read a field by ID | Stub |
+| `create_field` | Create a new field | Stub |
+| `update_field` | Update an existing field | Stub |
+| `delete_field` | Delete a field by ID | Stub |
+
+## Build and Run
+
+A PostgreSQL connection string is required to run the server.
 
 ```bash
-# Сборка
+# Build
 dotnet build
 
-# Запуск (требуется строка подключения к PostgreSQL)
-dotnet run --project IPmcp.Tools -- -database "<строка_подключения>"
+# Run
+dotnet run --project IPmcp.Tools -- -database "<connection_string>"
 ```
