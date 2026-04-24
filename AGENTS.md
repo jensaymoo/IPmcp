@@ -16,6 +16,12 @@
 
 **Стек:** .NET 10.0, ModelContextProtocol 1.2.0, linq2db 5.4.1.9, PostgreSQL, Microsoft.Extensions.Hosting.
 
+## Обработка исключений
+
+**`IPmcp.App.Exceptions.DatabaseException`** — бизнес-исключение при сбое соединения с БД.
+- Создаётся в сервисах при перехвате `LinqToDB.LinqToDBException`.
+- В инструментах перехватывается и оборачивается в `McpException`.
+
 ## Зависимости
 
 | Пакет | Версия | Проект |
