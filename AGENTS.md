@@ -25,19 +25,11 @@ Instructions for AI agents working with this repository.
 
 The solution (`IPmcp.sln`) contains three projects organized in a layered architecture:
 
-| Project | Role | Description |
-|---------|------|-------------|
-| **IPmcp.Tools** | Presentation | Entry point. Runs the MCP server over stdio and hosts 10 tool classes (CRUD for entities and fields), registered via `WithToolsFromAssembly()`. |
-| **IPmcp.App** | Service | Business logic. Contains `IEntityService`/`EntityService` and `IFieldService`/`FieldService`, plus domain models and filters. |
-| **IPmcp.Database** | Data access | `AppDataConnection` (derived from linq2db's `DataConnection`) exposes `ITable<Entity>` and `ITable<Field>`, mapped to `system.ipentitytype` and `system.ipentityfield`. |
-
-### Tool Contract
-
-Each tool is a static class that follows a uniform contract:
-
-- Decorated with `[McpServerToolType]`.
-- Exposes a single `Execute` method decorated with `[McpServerTool]`.
-- Receives its service and filter through `Execute` parameters — the MCP framework resolves them from DI automatically.
+| Project | Layer | Responsibility | Contents |
+|---------|-------|----------------|----------|
+| **IPmcp.Tools** | Presentation | Application entry point and MCP tool definitions. | Tool classes grouped under `Tools/{Group}/`. |
+| **IPmcp.App** | Service | Business logic and domain contracts. | Services, models, and filters grouped under `Services/{Group}/`. |
+| **IPmcp.Database** | Data access | Database connection and table mappings. | `AppDataConnection` and entity mapping types. |
 
 ## Dependencies
 
