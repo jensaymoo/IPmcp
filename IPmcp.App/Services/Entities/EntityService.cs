@@ -21,8 +21,9 @@ public class EntityService(AppDataConnection db) : IEntityService
                     IsActive = e.IsActive == 1,
                     IsAbstract = e.IsAbstract == 1,
                     BaseEntityTypeId = e.BaseEntityTypeId,
-                    WorkspaceId = e.WorkspaceId
-                });
+                })
+                .OrderBy(e => e.EntityTypeId)
+                .AsQueryable();
 
             if (filter.Skip.HasValue)
                 query = query.Skip(filter.Skip.Value);

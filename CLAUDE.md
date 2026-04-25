@@ -13,6 +13,7 @@ Instructions for AI agents working with this repository.
 5. [Key Design Principles](#key-design-principles)
 6. [Tools](#tools)
 7. [Build and Run](#build-and-run)
+8. [Packaging](#packaging)
 
 ## Overview
 
@@ -155,4 +156,54 @@ dotnet build
 
 # Run
 dotnet run --project IPmcp.Tools -- --database "<connection_string>"
+```
+
+## Packaging
+
+IPmcp can be packaged and installed as a .NET global tool.
+
+
+### Build & Publish
+
+```bash
+# Pack as .nupkg
+dotnet pack IPmcp.Tools/IPmcp.Tools.csproj -c Release
+
+# Or publish as self-contained executable
+dotnet publish IPmcp.Tools/IPmcp.Tools.csproj -c Release -o publish
+```
+
+### Installation
+
+```bash
+# Local installation (project directory)
+dotnet tool install --local --add-source ./bin/Release IPmcp
+
+# Global installation
+dotnet tool install --global --add-source ./bin/Release IPmcp
+```
+
+### Usage
+
+```bash
+# Via installed tool
+IPmcp --database "<connection_string>"
+
+# Or via dotnet run
+dotnet tool run IPmcp -- --database "<connection_string>"
+```
+
+### MCP Client Configuration
+
+Use the installed tool as an MCP server in client configs (e.g., Claude Desktop):
+
+```json
+{
+  "mcpServers": {
+    "IPmcp": {
+      "command": "IPmcp",
+      "args": ["--database", "<connection_string>"]
+    }
+  }
+}
 ```

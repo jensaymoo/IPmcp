@@ -9,5 +9,4 @@ public class EntityShortModel
     public required bool IsActive { get; init; }
     public required bool IsAbstract { get; init; }
     public int? BaseEntityTypeId { get; init; }
-    public required int WorkspaceId { get; init; }
 }

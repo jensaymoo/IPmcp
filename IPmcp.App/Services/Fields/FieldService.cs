@@ -28,7 +28,9 @@ public class FieldService(AppDataConnection db) : IFieldService
                     IsReadOnly = f.IsReadOnly == 1,
                     IsRequired = f.IsRequired == 1,
                     WorkspaceId = f.WorkspaceId
-                });
+                })
+                .OrderBy(e => e.EntityFieldId)
+                .AsQueryable();
 
             if (filter.Skip.HasValue)
                 query = query.Skip(filter.Skip.Value);
