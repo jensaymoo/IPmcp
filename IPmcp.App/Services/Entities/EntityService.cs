@@ -1,6 +1,7 @@
 using IPmcp.App.Exceptions;
 using IPmcp.App.Services.Entities.Models;
 using IPmcp.Database;
+using IPmcp.Database.Extensions;
 using LinqToDB;
 
 namespace IPmcp.App.Services.Entities;
@@ -11,7 +12,14 @@ public class EntityService(AppDataConnection db) : IEntityService
     {
         try
         {
-            var query = db.Entities
+            var entities = db.Entities.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filter.SearchPattern))
+                entities = entities.Where(e =>
+                    e.TableName.MatchesText(filter.SearchPattern) ||
+                    e.DisplayName.MatchesText(filter.SearchPattern));
+
+            var query = entities
                 .Select(e => new EntityShortModel
                 {
                     EntityTypeId = e.EntityTypeId,

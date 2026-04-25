@@ -16,15 +16,17 @@ public class ListEntity(IEntityService service)
          "Each entity represents a system table and contains metadata: " +
          "entityTypeId, shortName, tableName, displayName, isActive, isAbstract, baseEntityTypeId, workspaceId. " +
          "Use this tool to discover available entities before querying their fields or performing CRUD operations. " +
-         "Supports pagination via 'limit' and 'skip' parameters.")]
+         "Supports pagination via 'limit' and 'skip' parameters. " +
+         "Supports full-text search via 'searchPattern' across tableName and displayName.")]
     public async Task<IEnumerable<EntityShortModel>> Execute(
         [Description("Maximum number of entities to return.")] int? limit = 50,
         [Description("Number of entities to skip before returning results.")] int? skip = 0,
+        [Description("Optional plain-text search pattern to filter entities by tableName or displayName.")] string? searchPattern = null,
         CancellationToken ct = default)
     {
         try
         {
-            return await service.ListEntitiesAsync(new ListEntityFilter(limit, skip), ct);
+            return await service.ListEntitiesAsync(new ListEntityFilter(limit, skip, searchPattern), ct);
         }
         catch (DatabaseException ex)
         {
