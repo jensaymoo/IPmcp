@@ -7,27 +7,34 @@ namespace IPmcp.App.Services.Entities;
 
 public class EntityService(AppDataConnection db) : IEntityService
 {
-    public IEnumerable<EntityModel> ListEntities(ListEntityFilter filter)
+    public async Task<IEnumerable<EntityShortModel>> ListEntitiesAsync(ListEntityFilter filter, CancellationToken ct)
     {
         try
         {
-            return db.Entities
-                     .Select(e => new EntityModel
-                     {
-                         EntityTypeId = e.EntityTypeId,
-                         ShortName = e.ShortName,
-                         TableName = e.TableName,
-                         DisplayName = e.DisplayName,
-                         IsActive = e.IsActive == 1,
-                         IsAbstract = e.IsAbstract == 1,
-                         BaseEntityTypeId = e.BaseEntityTypeId,
-                         WorkspaceId = e.WorkspaceId
-                     })
-                     .ToList();
+            var query = db.Entities
+                .Select(e => new EntityShortModel
+                {
+                    EntityTypeId = e.EntityTypeId,
+                    ShortName = e.ShortName,
+                    TableName = e.TableName,
+                    DisplayName = e.DisplayName,
+                    IsActive = e.IsActive == 1,
+                    IsAbstract = e.IsAbstract == 1,
+                    BaseEntityTypeId = e.BaseEntityTypeId,
+                    WorkspaceId = e.WorkspaceId
+                });
+
+            if (filter.Skip.HasValue)
+                query = query.Skip(filter.Skip.Value);
+
+            if (filter.Limit.HasValue)
+                query = query.Take(filter.Limit.Value);
+
+            return await query.ToListAsync(ct);
         }
-        catch (Exception ex) when (ex is LinqToDB.LinqToDBException or System.Data.Common.DbException)
+        catch (Exception ex) when (ex is LinqToDBException or System.Data.Common.DbException)
         {
-            throw new DatabaseException(DatabaseException.DefaultMessage, ex);
+            throw new DatabaseException(ex);
         }
     }
 }

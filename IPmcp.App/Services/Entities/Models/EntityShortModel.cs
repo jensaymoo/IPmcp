@@ -1,6 +1,6 @@
 namespace IPmcp.App.Services.Entities.Models;
 
-public class EntityModel
+public class EntityShortModel
 {
     public required int EntityTypeId { get; init; }
     public required string ShortName { get; init; }

@@ -7,6 +7,7 @@ namespace IPmcp.Tools.Tools.Entity;
 [McpServerToolType]
 public class DeleteEntity(IEntityService service)
 {
-    [McpServerTool(Name = "delete_entity"), Description("Delete an IP entity type by identifier.")]
-    public string Execute() => throw new NotImplementedException();
+    [McpServerTool(Name = "delete_entity", Title = "Delete Entity", ReadOnly = false, Idempotent = false, Destructive = true),
+     Description("Delete an IP entity type by identifier.")]
+    public Task<string> Execute(CancellationToken ct = default) => throw new NotImplementedException();
 }

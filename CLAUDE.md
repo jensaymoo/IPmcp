@@ -55,7 +55,7 @@ The solution (`IPmcp.sln`) contains three projects organized in a layered archit
 | `ModelContextProtocol` | 1.2.0 | IPmcp.Tools |
 | `Microsoft.Extensions.Hosting` | 10.0.7 | IPmcp.Tools |
 | `linq2db.AspNet` | 5.4.1.9 | IPmcp.Tools |
-| `linq2db` | 5.4.1.9 | IPmcp.Database |
+| `linq2db.PostgreSQL` | 5.4.1.9 | IPmcp.Database |
 
 ### Common Project Settings
 
@@ -67,7 +67,7 @@ All projects target `net10.0` with `ImplicitUsings: enable` and `Nullable: enabl
 
 - Classes, interfaces, and methods — `PascalCase`; interfaces are prefixed with `I`.
 - Parameters and local variables — `camelCase`.
-- MCP tool names — `snake_case` (e.g., `create_entity`, `read_field`).
+- MCP tool names — `snake_case` (e.g., `add_entity`, `get_field`).
 - Namespaces — `IPmcp.{Project}.{Layer}.{Category}`.
 
 ### File Organization
@@ -82,15 +82,20 @@ All projects target `net10.0` with `ImplicitUsings: enable` and `Nullable: enabl
 - **DTO models** — `class` with `required` properties and `init` setters.
 - **Filters** — `record` type with parameters declared in the constructor.
 
+### Tool Parameters
+
+- All tool `Execute` methods and service methods must be **asynchronous** (`async Task<T>`) and accept `CancellationToken ct` as the last parameter (with `default` value in tools).
+- Optional tool parameters should be declared as `nullable` with a default value (e.g., `int? limit = 50`).
+
 ### Dependency Injection
 
-- Tools receive the service and filter as parameters of the `Execute` method — the MCP framework resolves them automatically.
+- Tool arguments are declared directly as parameters of the `Execute` method — the MCP framework resolves them automatically. Filters are constructed inside the method body from these parameters.
 - Services use C# 12 primary constructors: `public class EntityService(AppDataConnection db)`.
 - DI registration uses `AddScoped`.
 
 ### C# Language Features
 
-Primary constructors (C# 12), expression-bodied members, implicit usings, nullable reference types, top-level statements.
+Primary constructors (C# 12), expression-bodied members, implicit usings, nullable reference types, top-level statements, async/await.
 
 ### Message Language
 
@@ -115,14 +120,14 @@ Tools are split into two groups: **Entity** (entities/tables) and **Field** (fie
 
 - **Database table:** `system.ipentitytype`
 - **Service:** `IEntityService`
-- **Implemented methods:** `ListEntities(ListEntityFilter filter)`
-- **`EntityModel` fields:** `EntityTypeId`, `ShortName`, `TableName`, `DisplayName`, `IsActive`, `IsAbstract`, `BaseEntityTypeId`, `WorkspaceId`.
+- **Implemented methods:** `ListEntitiesAsync(ListEntityFilter filter, CancellationToken ct)`
+- **`EntityShortModel` fields:** `EntityTypeId`, `ShortName`, `TableName`, `DisplayName`, `IsActive`, `IsAbstract`, `BaseEntityTypeId`, `WorkspaceId`.
 
 | Tool | Description | Status |
 |------|-------------|--------|
 | `list_entity` | List all entities | Implemented |
-| `read_entity` | Read an entity by ID | Stub |
-| `create_entity` | Create a new entity | Stub |
+| `get_entity` | Read an entity by ID | Stub |
+| `add_entity` | Create a new entity | Stub |
 | `update_entity` | Update an existing entity | Stub |
 | `delete_entity` | Delete an entity by ID | Stub |
 
@@ -135,8 +140,8 @@ Tools are split into two groups: **Entity** (entities/tables) and **Field** (fie
 | Tool | Description | Status |
 |------|-------------|--------|
 | `list_field` | List all fields | Stub |
-| `read_field` | Read a field by ID | Stub |
-| `create_field` | Create a new field | Stub |
+| `get_field` | Read a field by ID | Stub |
+| `add_field` | Create a new field | Stub |
 | `update_field` | Update an existing field | Stub |
 | `delete_field` | Delete a field by ID | Stub |
 
@@ -149,5 +154,5 @@ A PostgreSQL connection string is required to run the server.
 dotnet build
 
 # Run
-dotnet run --project IPmcp.Tools -- -database "<connection_string>"
+dotnet run --project IPmcp.Tools -- --database "<connection_string>"
 ```

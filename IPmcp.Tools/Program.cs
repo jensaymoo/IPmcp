@@ -10,9 +10,17 @@ using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole(o 
+    => o.LogToStandardErrorThreshold = LogLevel.Trace);
+
+var loggingLevel = LoggingLevel.Debug;
 
 var database = builder.Configuration["database"]
     ?? throw new InvalidOperationException(
@@ -46,7 +54,17 @@ builder.Services
         };
     })
     .WithStdioServerTransport()
-    .WithToolsFromAssembly(serializerOptions: serializerOptions);
+    .WithToolsFromAssembly(serializerOptions: serializerOptions)    
+    .WithSetLoggingLevelHandler(async (ctx, ct) =>
+    {
+        if (ctx.Params?.Level is null)
+            throw new McpException("Missing required argument 'level'");
+
+        loggingLevel = ctx.Params.Level;
+        return new EmptyResult();
+    });
+
+builder.Services.AddSingleton<Func<LoggingLevel>>(_ => () => loggingLevel);
 
 await builder.Build()
     .RunAsync();
