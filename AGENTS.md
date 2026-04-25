@@ -11,9 +11,8 @@ Instructions for AI agents working with this repository.
 3. [Dependencies](#dependencies)
 4. [Code Style](#code-style)
 5. [Key Design Principles](#key-design-principles)
-6. [Exception Handling](#exception-handling)
-7. [Tools](#tools)
-8. [Build and Run](#build-and-run)
+6. [Tools](#tools)
+7. [Build and Run](#build-and-run)
 
 ## Overview
 
@@ -105,13 +104,6 @@ When developing or reviewing code, verify adherence to these key design principl
 - **Single Responsibility** — Each class should have one clear responsibility.
 - **Encapsulation** — Keep implementation details private and expose only necessary public APIs.
 - **Strong Typing** — Use strong typing to ensure that code is self-documenting and to catch errors at compile time.
-
-## Exception Handling
-
-`IPmcp.App.Exceptions.DatabaseException` is a business exception raised on a database connection failure.
-
-- **Thrown in services** when `LinqToDB.LinqToDBException` or `System.Data.Common.DbException` is caught.
-- **Caught in tools** and wrapped in `McpException` before being surfaced to the MCP client.
 
 ## Tools
 
