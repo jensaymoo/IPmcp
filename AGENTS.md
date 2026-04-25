@@ -31,6 +31,22 @@ The solution (`IPmcp.sln`) contains three projects organized in a layered archit
 | **IPmcp.App** | Service | Business logic and domain contracts. | Services, models, and filters grouped under `Services/{Group}/`. |
 | **IPmcp.Database** | Data access | Database connection and table mappings. | `AppDataConnection` and entity mapping types. |
 
+### Key Rules
+
+1. **Dependencies flow downward only.**
+   Each layer knows only about the layer directly below it. Reverse dependencies are forbidden: `Presentation → Service → Data Access`.
+
+2. **Isolation through interfaces.**
+   Service works with abstractions (`IQueryable<T>`), not concrete database implementations. This allows swapping implementations.
+
+3. **Single entry point.**
+   Presentation communicates only with Service. Direct calls from Presentation to Data Access are an architecture violation.
+
+4. **Error handling by layer.**
+   - Data Access throws technical exceptions.
+   - Service translates them into domain errors.
+   - Presentation translates them into MCP exceptions.
+
 ## Dependencies
 
 ### Packages
@@ -59,14 +75,13 @@ All projects target `net10.0` with `ImplicitUsings: enable` and `Nullable: enabl
 
 - One type per file.
 - Interface and implementation live in separate files.
-- Tools: `Tools/Entity/` and `Tools/Field/`.
-- Services: `Services/Entities/` and `Services/Fields/`.
-- Models and filters for each group: `Services/{Group}/Models/`.
+- Tools and services are grouped by domain under `{Project}/{Group}/`.
+- Models and filters live next to their owning service.
 
 ### Model Types
 
-- **DTO models** (e.g., `EntityModel`) — `class` with `required` properties and `init` setters.
-- **Filters** (e.g., `ListEntityFilter`) — `record` type with parameters initialized via constructor arguments.
+- **DTO models** — `class` with `required` properties and `init` setters.
+- **Filters** — `record` type with parameters declared in the constructor.
 
 ### Dependency Injection
 
