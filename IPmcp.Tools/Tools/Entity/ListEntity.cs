@@ -17,11 +17,13 @@ public class ListEntity(IEntityService service)
          "entityTypeId, shortName, tableName, displayName, isActive, isAbstract, baseEntityTypeId, workspaceId. " +
          "Use this tool to discover available entities before querying their fields or performing CRUD operations. " +
          "Supports pagination via 'limit' and 'skip' parameters. " +
-         "Supports full-text search via 'searchPattern' across tableName and displayName.")]
+         "Supports full-text search via 'searchPattern' across tableName and displayName using " +
+         "operators: words=AND by default, OR for alternatives, -word to exclude, \"phrase\" for exact match " +
+         "(e.g. 'invoice OR order -draft \"line item\"').")]
     public async Task<IEnumerable<EntityShortModel>> Execute(
         [Description("Maximum number of entities to return.")] int? limit = 50,
         [Description("Number of entities to skip before returning results.")] int? skip = 0,
-        [Description("Optional plain-text search pattern to filter entities by tableName or displayName.")] string? searchPattern = null,
+        [Description("Full-text search filter on tableName and displayName.")] string? searchPattern = null,
         CancellationToken ct = default)
     {
         try
