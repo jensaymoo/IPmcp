@@ -1,3 +1,3 @@
 namespace IPmcp.App.Services.Fields.Models;
 
-public record ListFieldFilter(int EntityTypeId, int? Limit = 50, int? Skip = 0);
+public record ListFieldFilter(int EntityTypeId, int? Limit, int? Skip);

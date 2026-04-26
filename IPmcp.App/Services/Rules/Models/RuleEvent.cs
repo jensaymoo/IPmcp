@@ -2,6 +2,7 @@ namespace IPmcp.App.Services.Rules.Models;
 
 public enum RuleEvent
 {
+    Unknown = -1,
     OnOpen = 0,
     BeforeAdd = 1,
     AfterAdd = 2,

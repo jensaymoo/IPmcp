@@ -113,9 +113,9 @@ When developing or reviewing code, verify adherence to these key design principl
 
 ## Tools
 
-Tools are split into two groups: **Entity** (entities/tables) and **Field** (fields/columns).
+Tools are split into three groups: **Entity** (entities/tables), **Field** (fields/columns), and **Rule** (business rules).
 
-> **Implementation status:** only `list_entity` is implemented. The remaining 9 tools are stubs and throw `NotImplementedException`.
+> **Implementation status:** `list_entity`, `get_entity`, `list_field`, and `list_rule` are implemented. The remaining tools are stubs and throw `NotImplementedException`.
 
 ### Entity — Entity Management
 
@@ -127,7 +127,7 @@ Tools are split into two groups: **Entity** (entities/tables) and **Field** (fie
 | Tool | Description | Status |
 |------|-------------|--------|
 | `list_entity` | List all entities | Implemented |
-| `get_entity` | Read an entity by ID | Stub |
+| `get_entity` | Read an entity by ID | Implemented |
 | `add_entity` | Create a new entity | Stub |
 | `update_entity` | Update an existing entity | Stub |
 | `delete_entity` | Delete an entity by ID | Stub |
@@ -136,15 +136,27 @@ Tools are split into two groups: **Entity** (entities/tables) and **Field** (fie
 
 - **Database table:** `system.ipentityfield`
 - **Service:** `IFieldService`
-- **Implemented methods:** none — the interface should be extended as implementation progresses.
+- **Implemented methods:** `ListFieldsAsync(ListFieldFilter filter, CancellationToken ct)`
+- **`FieldShortModel` fields:** `EntityFieldId`, `EntityTypeId`, `ShortName`, `FieldName`, `DisplayName`, `FieldType`, `SqlTableName`, `SqlFieldName`, `IsActive`, `IsVisible`, `IsReadOnly`, `IsRequired`.
 
 | Tool | Description | Status |
 |------|-------------|--------|
-| `list_field` | List all fields | Stub |
+| `list_field` | List fields for an entity | Implemented |
 | `get_field` | Read a field by ID | Stub |
 | `add_field` | Create a new field | Stub |
 | `update_field` | Update an existing field | Stub |
 | `delete_field` | Delete a field by ID | Stub |
+
+### Rule — Rule Management
+
+- **Database tables:** `system.iprule`, `system.ipentitytype_iprule` (junction)
+- **Service:** `IRuleService`
+- **Implemented methods:** `ListRulesAsync(ListRuleFilter filter, CancellationToken ct)`
+- **`RuleShortModel` fields:** `RuleId`, `ShortName`, `DisplayName`, `RuleType`, `Event`, `Code`, `IsActive`.
+
+| Tool | Description | Status |
+|------|-------------|--------|
+| `list_rule` | List rules for an entity | Implemented |
 
 ## Build and Run
 

@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using IPmcp.App.Services.Entities;
 using IPmcp.App.Services.Fields;
+using IPmcp.App.Services.Rules;
 using IPmcp.Database;
 using LinqToDB;
 using LinqToDB.AspNet;
@@ -32,6 +33,7 @@ builder.Services.AddLinqToDBContext<AppDataConnection>((provider, options) =>
 
 builder.Services.AddScoped<IEntityService, EntityService>();
 builder.Services.AddScoped<IFieldService, FieldService>();
+builder.Services.AddScoped<IRuleService, RuleService>();
 
 var serializerOptions = new JsonSerializerOptions
 {

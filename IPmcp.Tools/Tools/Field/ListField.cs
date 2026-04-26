@@ -26,7 +26,8 @@ public class ListField(IFieldService service)
     {
         try
         {
-            return await service.ListFieldsAsync(new ListFieldFilter(entityTypeId, limit, skip), ct);
+            var result = await service.ListFieldsAsync(new ListFieldFilter(entityTypeId, limit, skip), ct);
+            return result.Any() ? result : throw new McpException("No fields found.");
         }
         catch (DatabaseException ex)
         {
