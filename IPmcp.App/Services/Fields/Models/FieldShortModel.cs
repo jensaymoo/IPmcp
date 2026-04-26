@@ -14,5 +14,4 @@ public class FieldShortModel
     public required bool IsVisible { get; init; }
     public required bool IsReadOnly { get; init; }
     public required bool IsRequired { get; init; }
-    public required int WorkspaceId { get; init; }
 }

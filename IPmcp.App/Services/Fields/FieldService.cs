@@ -26,8 +26,7 @@ public class FieldService(AppDataConnection db) : IFieldService
                     IsActive = f.IsActive == 1,
                     IsVisible = f.IsVisible == 1,
                     IsReadOnly = f.IsReadOnly == 1,
-                    IsRequired = f.IsRequired == 1,
-                    WorkspaceId = f.WorkspaceId
+                    IsRequired = f.IsRequired == 1
                 })
                 .OrderBy(e => e.EntityFieldId)
                 .AsQueryable();

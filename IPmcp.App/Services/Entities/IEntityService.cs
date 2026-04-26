@@ -5,4 +5,5 @@ namespace IPmcp.App.Services.Entities;
 public interface IEntityService
 {
     Task<IEnumerable<EntityShortModel>> ListEntitiesAsync(ListEntityFilter filter, CancellationToken ct);
+    Task<EntityDetailModel?> GetEntityAsync(int entityTypeId, CancellationToken ct);
 }

@@ -1,6 +1,8 @@
+using IPmcp.App.Services.Fields.Models;
+
 namespace IPmcp.App.Services.Entities.Models;
 
-public class EntityShortModel
+public class EntityDetailModel
 {
     public required int EntityTypeId { get; init; }
     public required string ShortName { get; init; }
@@ -9,5 +11,5 @@ public class EntityShortModel
     public required bool IsActive { get; init; }
     public required bool IsAbstract { get; init; }
     public int? BaseEntityTypeId { get; init; }
+    public required IEnumerable<FieldShortModel> Fields { get; init; }
 }
-

@@ -1,5 +1,6 @@
 using IPmcp.App.Exceptions;
 using IPmcp.App.Services.Entities.Models;
+using IPmcp.App.Services.Fields.Models;
 using IPmcp.Database;
 using IPmcp.Database.Extensions;
 using LinqToDB;
@@ -40,6 +41,55 @@ public class EntityService(AppDataConnection db) : IEntityService
                 query = query.Take(filter.Limit.Value);
 
             return await query.ToListAsync(ct);
+        }
+        catch (Exception ex) when (ex is LinqToDBException or System.Data.Common.DbException)
+        {
+            throw new DatabaseException(ex);
+        }
+    }
+
+    public async Task<EntityDetailModel?> GetEntityAsync(int entityTypeId, CancellationToken ct)
+    {
+        try
+        {
+            var entity = await db.Entities
+                .Where(e => e.EntityTypeId == entityTypeId)
+                .FirstOrDefaultAsync(ct);
+
+            if (entity is null)
+                return null;
+
+            var fields = await db.Fields
+                .Where(f => f.EntityTypeId == entityTypeId)
+                .Select(f => new FieldShortModel
+                {
+                    EntityFieldId = f.EntityFieldId,
+                    EntityTypeId = f.EntityTypeId,
+                    ShortName = f.ShortName,
+                    FieldName = f.FieldName,
+                    DisplayName = f.DisplayName,
+                    FieldType = f.FieldType,
+                    SqlTableName = f.SqlTableName,
+                    SqlFieldName = f.SqlFieldName,
+                    IsActive = f.IsActive == 1,
+                    IsVisible = f.IsVisible == 1,
+                    IsReadOnly = f.IsReadOnly == 1,
+                    IsRequired = f.IsRequired == 1
+                })
+                .OrderBy(f => f.EntityFieldId)
+                .ToListAsync(ct);
+
+            return new EntityDetailModel
+            {
+                EntityTypeId = entity.EntityTypeId,
+                ShortName = entity.ShortName,
+                TableName = entity.TableName,
+                DisplayName = entity.DisplayName,
+                IsActive = entity.IsActive == 1,
+                IsAbstract = entity.IsAbstract == 1,
+                BaseEntityTypeId = entity.BaseEntityTypeId,
+                Fields = fields
+            };
         }
         catch (Exception ex) when (ex is LinqToDBException or System.Data.Common.DbException)
         {
