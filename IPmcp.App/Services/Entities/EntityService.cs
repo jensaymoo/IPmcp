@@ -59,25 +59,26 @@ public class EntityService(AppDataConnection db) : IEntityService
             if (entity is null)
                 return null;
 
-            var fields = await db.Fields
+            var fieldRows = await db.Fields
                 .Where(f => f.EntityTypeId == entityTypeId)
-                .Select(f => new FieldShortModel
-                {
-                    EntityFieldId = f.EntityFieldId,
-                    EntityTypeId = f.EntityTypeId,
-                    ShortName = f.ShortName,
-                    FieldName = f.FieldName,
-                    DisplayName = f.DisplayName,
-                    FieldType = f.FieldType,
-                    SqlTableName = f.SqlTableName,
-                    SqlFieldName = f.SqlFieldName,
-                    IsActive = f.IsActive == 1,
-                    IsVisible = f.IsVisible == 1,
-                    IsReadOnly = f.IsReadOnly == 1,
-                    IsRequired = f.IsRequired == 1
-                })
                 .OrderBy(f => f.EntityFieldId)
                 .ToListAsync(ct);
+
+            var fields = fieldRows.Select(f => new FieldShortModel
+            {
+                EntityFieldId = f.EntityFieldId,
+                EntityTypeId = f.EntityTypeId,
+                ShortName = f.ShortName,
+                FieldName = f.FieldName,
+                DisplayName = f.DisplayName,
+                FieldType = Enum.Parse<FieldType>(f.FieldType!, ignoreCase: true),
+                SqlTableName = f.SqlTableName,
+                SqlFieldName = f.SqlFieldName,
+                IsActive = f.IsActive == 1,
+                IsVisible = f.IsVisible == 1,
+                IsReadOnly = f.IsReadOnly == 1,
+                IsRequired = f.IsRequired == 1
+            }).ToList();
 
             return new EntityDetailModel
             {

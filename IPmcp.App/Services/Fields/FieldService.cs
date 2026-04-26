@@ -13,22 +13,7 @@ public class FieldService(AppDataConnection db) : IFieldService
         {
             var query = db.Fields
                 .Where(f => f.EntityTypeId == filter.EntityTypeId)
-                .Select(f => new FieldShortModel
-                {
-                    EntityFieldId = f.EntityFieldId,
-                    EntityTypeId = f.EntityTypeId,
-                    ShortName = f.ShortName,
-                    FieldName = f.FieldName,
-                    DisplayName = f.DisplayName,
-                    FieldType = f.FieldType,
-                    SqlTableName = f.SqlTableName,
-                    SqlFieldName = f.SqlFieldName,
-                    IsActive = f.IsActive == 1,
-                    IsVisible = f.IsVisible == 1,
-                    IsReadOnly = f.IsReadOnly == 1,
-                    IsRequired = f.IsRequired == 1
-                })
-                .OrderBy(e => e.EntityFieldId)
+                .OrderBy(f => f.EntityFieldId)
                 .AsQueryable();
 
             if (filter.Skip.HasValue)
@@ -37,7 +22,23 @@ public class FieldService(AppDataConnection db) : IFieldService
             if (filter.Limit.HasValue)
                 query = query.Take(filter.Limit.Value);
 
-            return await query.ToListAsync(ct);
+            var rows = await query.ToListAsync(ct);
+
+            return rows.Select(f => new FieldShortModel
+            {
+                EntityFieldId = f.EntityFieldId,
+                EntityTypeId = f.EntityTypeId,
+                ShortName = f.ShortName,
+                FieldName = f.FieldName,
+                DisplayName = f.DisplayName,
+                FieldType = Enum.Parse<FieldType>(f.FieldType!, ignoreCase: true),
+                SqlTableName = f.SqlTableName,
+                SqlFieldName = f.SqlFieldName,
+                IsActive = f.IsActive == 1,
+                IsVisible = f.IsVisible == 1,
+                IsReadOnly = f.IsReadOnly == 1,
+                IsRequired = f.IsRequired == 1
+            });
         }
         catch (Exception ex) when (ex is LinqToDBException or System.Data.Common.DbException)
         {
