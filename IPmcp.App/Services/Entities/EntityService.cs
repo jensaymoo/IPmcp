@@ -47,6 +47,10 @@ public class EntityService(AppDataConnection db) : IEntityService
         {
             throw new DatabaseException(ex);
         }
+        catch (Exception ex)
+        {
+            throw new DatabaseException(ex.Message, ex);
+        }
     }
 
     public async Task<EntityDetailModel?> GetEntityAsync(int entityTypeId, CancellationToken ct)
@@ -115,6 +119,10 @@ public class EntityService(AppDataConnection db) : IEntityService
         catch (Exception ex) when (ex is LinqToDBException or System.Data.Common.DbException)
         {
             throw new DatabaseException(ex);
+        }
+        catch (Exception ex)
+        {
+            throw new DatabaseException(ex.Message, ex);
         }
     }
 }

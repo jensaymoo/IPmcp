@@ -44,5 +44,9 @@ public class FieldService(AppDataConnection db) : IFieldService
         {
             throw new DatabaseException(ex);
         }
+        catch (Exception ex)
+        {
+            throw new DatabaseException(ex.Message, ex);
+        }
     }
 }

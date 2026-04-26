@@ -8,7 +8,7 @@ public class DatabaseException : Exception
 
     public DatabaseException(Exception? innerException) : base($"{DefaultMessage}.", innerException) { }
 
-    public DatabaseException(string message) : base($"{DefaultMessage} {message}.") { }
+    public DatabaseException(string message) : base($"{DefaultMessage} ({message})") { }
 
     public DatabaseException(string message, Exception? innerException) : base($"{DefaultMessage} {message}.", innerException) { }
 }
