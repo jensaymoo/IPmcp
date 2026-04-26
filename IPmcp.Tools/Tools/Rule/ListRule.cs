@@ -17,19 +17,20 @@ public class ListRule(IRuleService service)
          "Use this tool to discover rules attached to a specific entity. " +
          "Requires 'entityTypeId' obtained from 'list_entity'. " +
          "Supports pagination via 'limit' and 'skip' parameters. " +
-         "Supports full-text search via 'searchPattern' across shortName and displayName using " +
-         "operators: words=AND by default, OR for alternatives, -word to exclude, \"phrase\" for exact match " +
+         "Supports full-text search via 'searchPattern' (across shortName and displayName) and 'codePattern' (across rule code). " +
+         "Both accept the same operators: words=AND by default, OR for alternatives, -word to exclude, \"phrase\" for exact match " +
          "(e.g. 'validate OR check -draft \"before save\"').")]
     public async Task<IEnumerable<RuleShortModel>> Execute(
         [Description("The ID of the entity type to list rules for.")] int entityTypeId,
         [Description("Maximum number of rules to return.")] int? limit = 50,
         [Description("Number of rules to skip before returning results.")] int? skip = 0,
         [Description("Full-text search filter on shortName and displayName.")] string? searchPattern = null,
+        [Description("Full-text search filter on rule code.")] string? codePattern = null,
         CancellationToken ct = default)
     {
         try
         {
-            var result = await service.ListRulesAsync(new ListRuleFilter(entityTypeId, limit, skip, searchPattern), ct);
+            var result = await service.ListRulesAsync(new ListRuleFilter(entityTypeId, limit, skip, searchPattern, codePattern), ct);
             return result.Any() ? result : throw new McpException("No rules found.");
         }
         catch (DatabaseException ex)

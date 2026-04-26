@@ -20,6 +20,9 @@ public class RuleService(AppDataConnection db) : IRuleService
                     x.r.ShortName.MatchesText(filter.SearchPattern) ||
                     x.r.DisplayName.MatchesText(filter.SearchPattern));
 
+            if (!string.IsNullOrWhiteSpace(filter.CodePattern))
+                joined = joined.Where(x => x.r.GoScript.MatchesText(filter.CodePattern));
+
             var rows = await joined
                 .OrderBy(x => x.etr.SortOrder)
                 .ThenBy(x => x.r.RuleId)
