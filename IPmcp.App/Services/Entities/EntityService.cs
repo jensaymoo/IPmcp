@@ -1,6 +1,7 @@
 using IPmcp.App.Exceptions;
 using IPmcp.App.Services.Entities.Models;
 using IPmcp.App.Services.Fields.Models;
+using IPmcp.App.Services.Rules.Models;
 using IPmcp.Database;
 using IPmcp.Database.Extensions;
 using LinqToDB;
@@ -80,6 +81,24 @@ public class EntityService(AppDataConnection db) : IEntityService
                 IsRequired = f.IsRequired == 1
             }).ToList();
 
+            var ruleRows = await db.EntityTypeRules
+                .Where(etr => etr.EntityTypeId == entityTypeId)
+                .Join(db.Rules, etr => etr.RuleId, r => r.RuleId, (etr, r) => new { etr, r })
+                .OrderBy(x => x.etr.SortOrder)
+                .ThenBy(x => x.r.RuleId)
+                .ToListAsync(ct);
+
+            var rules = ruleRows.Select(x => new RuleShortModel
+            {
+                RuleId = x.r.RuleId,
+                ShortName = x.r.ShortName,
+                DisplayName = x.r.DisplayName,
+                RuleType = x.r.IsUi == 1 ? RuleType.JavaScript : RuleType.Java,
+                Event = (RuleEvent)(x.etr.EventId ?? 0),
+                Code = x.r.GoScript,
+                IsActive = x.r.IsActive == 1
+            }).ToList();
+
             return new EntityDetailModel
             {
                 EntityTypeId = entity.EntityTypeId,
@@ -89,7 +108,8 @@ public class EntityService(AppDataConnection db) : IEntityService
                 IsActive = entity.IsActive == 1,
                 IsAbstract = entity.IsAbstract == 1,
                 BaseEntityTypeId = entity.BaseEntityTypeId,
-                Fields = fields
+                Fields = fields,
+                Rules = rules
             };
         }
         catch (Exception ex) when (ex is LinqToDBException or System.Data.Common.DbException)

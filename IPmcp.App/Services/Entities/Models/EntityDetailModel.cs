@@ -1,4 +1,5 @@
 using IPmcp.App.Services.Fields.Models;
+using IPmcp.App.Services.Rules.Models;
 
 namespace IPmcp.App.Services.Entities.Models;
 
@@ -12,4 +13,5 @@ public class EntityDetailModel
     public required bool IsAbstract { get; init; }
     public int? BaseEntityTypeId { get; init; }
     public required IEnumerable<FieldShortModel> Fields { get; init; }
+    public required IEnumerable<RuleShortModel> Rules { get; init; }
 }
